@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan CPMK-01 — Muhammad Raihan (H1H024056)</title>
+    <style>
+        @page { margin: 2cm; }
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #000; }
+        h1 { font-size: 18pt; text-align: center; margin-bottom: 5pt; }
+        h2 { font-size: 14pt; margin-top: 24pt; border-bottom: 1px solid #000; padding-bottom: 4pt; }
+        h3 { font-size: 12pt; margin-top: 16pt; }
+        .cover { text-align: center; padding-top: 120pt; page-break-after: always; }
+        .cover p { margin: 4pt 0; }
+        .cover .nama { font-size: 16pt; font-weight: bold; margin-top: 20pt; }
+        table { border-collapse: collapse; width: 100%; margin: 10pt 0; }
+        table th, table td { border: 1px solid #000; padding: 6pt 10pt; text-align: left; font-size: 11pt; }
+        table th { background: #eee; }
+        pre { background: #f5f5f5; padding: 10pt; font-size: 10pt; overflow-x: auto; border: 1px solid #ccc; }
+        code { font-family: 'Courier New', monospace; font-size: 10pt; }
+        .pagebreak { page-break-before: always; }
+        .info-box { background: #f9f9f9; border: 1px solid #ccc; padding: 10pt; margin: 10pt 0; }
+    </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+    <p style="font-size:14pt;">UNIVERSITAS JENDERAL SOEDIRMAN</p>
+    <p style="font-size:12pt;">FAKULTAS TEKNOLOGI DAN PERTANIAN</p>
+    <p style="font-size:12pt;">PROGRAM STUDI TEKNIK KOMPUTER</p>
+    <hr style="width:60%; margin-top:30pt;">
+    <br><br><br>
+    <p style="font-size:16pt; font-weight:bold;">LAPORAN UJIAN CPMK-01</p>
+    <p style="font-size:14pt;">Pemrograman Web II</p>
+    <p style="font-size:14pt;">Implementasi CRUD dengan Laravel 13 & Blade Template</p>
+    <br><br>
+    <div class="nama">
+        <p>Studi Kasus: Sistem Manajemen Transaksi Penjualan Sederhana</p>
+        <p>(Paket Soal Nomor 6)</p>
+    </div>
+    <br><br><br>
+    <p>Oleh:</p>
+    <p class="nama">Muhammad Raihan</p>
+    <p>H1H024056</p>
+    <br><br><br>
+    <p>Tahun Akademik 2026/2027</p>
+</div>
+
+<!-- DAFTAR ISI -->
+<div class="pagebreak">
+<h2>Daftar Isi</h2>
+<ol>
+    <li>Pendahuluan</li>
+    <li>Struktur Basis Data (ERD)</li>
+    <li>Penjelasan Fitur CRUD Dasar</li>
+    <li>Penjelasan Tantangan Khusus</li>
+    <li>Potongan Kode Penting</li>
+    <li>Screenshot Tampilan Sistem</li>
+    <li>Link Repository & Video</li>
+    <li>Kesimpulan</li>
+</ol>
+</div>
+
+<!-- 1. PENDAHULUAN -->
+<div class="pagebreak">
+<h2>1. Pendahuluan</h2>
+<p>
+    Sistem ini dibangun untuk memenuhi ujian CPMK-01 pada mata kuliah Pemrograman Web II.
+    Studi kasus yang dikerjakan adalah <strong>Sistem Manajemen Transaksi Penjualan Sederhana</strong>
+    (Paket Soal Nomor 6), yang memanajemen data pelanggan, data barang, dan data transaksi penjualan.
+</p>
+<p>
+    Teknologi yang digunakan:
+</p>
+<ul>
+    <li>Laravel 13.10.1 (framework PHP)</li>
+    <li>Blade Template (tanpa framework frontend tambahan)</li>
+    <li>SQLite (database)</li>
+    <li>Bootstrap 5 (CDN, untuk styling saja)</li>
+    <li>Pola MVC: Model (Eloquent), Resource Controller, Resource Route, Blade View</li>
+</ul>
+<p>
+    Sistem ini memiliki 4 tabel utama yang saling berelasi dan 3 tantangan khusus yang wajib diimplementasikan.
+</p>
+</div>
+
+<!-- 2. STRUKTUR BASIS DATA -->
+<div class="pagebreak">
+<h2>2. Struktur Basis Data (ERD)</h2>
+
+<h3>ERD (Entity Relationship Diagram)</h3>
+<div class="info-box">
+<pre>
++---------------+       +----------------+       +------------------+
+|   pelanggan   |       |   transaksi    |       | detail_transaksi |
++---------------+       +----------------+       +------------------+
+| id (PK)       |1----*| id (PK)        |1----*| id (PK)          |
+| nama_pelanggan|       | kode_transaksi |       | transaksi_id (FK)|
+| no_telepon    |       | pelanggan_id(FK|       | barang_id (FK)   |
++---------------+       | tanggal        |       | jumlah           |
+                        | total          |       | subtotal         |
+                        +----------------+       +------------------+
+                                                        |
+                                                +-------+-------+
+                                                |               |
+                                          +-----+------+  +----+-----+
+                                          |   barang    |  |          |
+                                          +------------+  |          |
+                                          | id (PK)    |  |          |
+                                          | nama_barang|  |          |
+                                          | harga_sat. |  |          |
+                                          | stok       |  |          |
+                                          +------------+  |          |
+</pre>
+</div>
+
+<h3>Detail Struktur Tabel</h3>
+<table>
+    <tr><th>Tabel</th><th>Kolom</th><th>Tipe</th><th>Keterangan</th></tr>
+    <tr><td rowspan="3"><strong>pelanggan</strong></td><td>id</td><td>bigint PK</td><td>Auto increment</td></tr>
+    <tr><td>nama_pelanggan</td><td>varchar(255)</td><td>Wajib diisi</td></tr>
+    <tr><td>no_telepon</td><td>varchar(20)</td><td>Nullable</td></tr>
+    <tr><td rowspan="4"><strong>barang</strong></td><td>id</td><td>bigint PK</td><td>Auto increment</td></tr>
+    <tr><td>nama_barang</td><td>varchar(255)</td><td>Wajib diisi</td></tr>
+    <tr><td>harga_satuan</td><td>decimal(12,2)</td><td>Default 0</td></tr>
+    <tr><td>stok</td><td>integer</td><td>Default 0</td></tr>
+    <tr><td rowspan="5"><strong>transaksi</strong></td><td>id</td><td>bigint PK</td><td>Auto increment</td></tr>
+    <tr><td>kode_transaksi</td><td>varchar(20) UNIQUE</td><td>Auto-generate TRX+timestamp</td></tr>
+    <tr><td>pelanggan_id</td><td>bigint FK</td><td>References pelanggan.id</td></tr>
+    <tr><td>tanggal</td><td>date</td><td>Tanggal transaksi</td></tr>
+    <tr><td>total</td><td>decimal(14,2)</td><td>Total dari semua subtotal</td></tr>
+    <tr><td rowspan="4"><strong>detail_transaksi</strong></td><td>id</td><td>bigint PK</td><td>Auto increment</td></tr>
+    <tr><td>transaksi_id</td><td>bigint FK</td><td>References transaksi.id</td></tr>
+    <tr><td>barang_id</td><td>bigint FK</td><td>References barang.id</td></tr>
+    <tr><td>jumlah</td><td>integer</td><td>Jumlah beli</td></tr>
+</table>
+</div>
+
+<!-- 3. PENJELASAN FITUR CRUD DASAR -->
+<div class="pagebreak">
+<h2>3. Penjelasan Fitur CRUD Dasar</h2>
+
+<h3>3.1 CRUD Pelanggan</h3>
+<ul>
+    <li><strong>Read/Index:</strong> Menampilkan seluruh data pelanggan dalam tabel</li>
+    <li><strong>Create:</strong> Form input nama pelanggan dan nomor telepon</li>
+    <li><strong>Update:</strong> Form edit data pelanggan yang sudah ada</li>
+    <li><strong>Delete:</strong> Hapus pelanggan dengan konfirmasi (confirm dialog)</li>
+    <li><strong>Validasi:</strong> nama_pelanggan wajib diisi, no_telepon opsional</li>
+</ul>
+
+<h3>3.2 CRUD Barang</h3>
+<ul>
+    <li><strong>Read/Index:</strong> Menampilkan data barang beserta harga dan stok</li>
+    <li><strong>Create:</strong> Form input nama, harga satuan, dan stok</li>
+    <li><strong>Update:</strong> Form edit data barang</li>
+    <li><strong>Delete:</strong> Hapus barang dengan konfirmasi</li>
+    <li><strong>Validasi:</strong> semua field wajib, harga ≥ 0, stok ≥ 0</li>
+</ul>
+
+<h3>3.3 CRUD Transaksi</h3>
+<ul>
+    <li><strong>Read/Index:</strong> Menampilkan daftar transaksi beserta nama pelanggan dan total</li>
+    <li><strong>Create:</strong> Form transaksi dengan pemilihan pelanggan, tanggal, dan multiple item barang</li>
+    <li><strong>Detail:</strong> Menampilkan detail transaksi beserta semua item</li>
+    <li><strong>Delete:</strong> Hapus transaksi dengan konfirmasi + pengembalian stok</li>
+    <li><strong>Validasi:</strong> pelanggan wajib, minimal 1 item, jumlah ≥ 1</li>
+</ul>
+</div>
+
+<!-- 4. PENJELASAN TANTANGAN KHUSUS -->
+<div class="pagebreak">
+<h2>4. Penjelasan Tantangan Khusus</h2>
+
+<h3>4.1 Perhitungan Otomatis Subtotal & Total</h3>
+<p>
+    Subtotal dihitung di Controller pada saat menyimpan transaksi:
+</p>
+<pre><code>$subtotal = $barang->harga_satuan * $jumlah;</code></pre>
+<p>
+    Total transaksi dijumlahkan dari seluruh subtotal:
+</p>
+<pre><code>$totalTransaksi += $subtotal;
+
+// Disimpan ke database
+Transaksi::create([
+    'kode_transaksi' => 'TRX' . date('YmdHis'),
+    'pelanggan_id'   => $validated['pelanggan_id'],
+    'tanggal'        => $validated['tanggal'],
+    'total'          => $totalTransaksi,
+]);</code></pre>
+<p>
+    Di tampilan form, JavaScript juga menghitung subtotal dan total secara real-time saat pengguna memilih barang atau mengubah jumlah.
+</p>
+
+<h3>4.2 Validasi Stok Tidak Boleh Minus</h3>
+<p>
+    Sebelum menyimpan, sistem mengecek apakah jumlah beli melebihi stok:
+</p>
+<pre><code>if ($jumlah > $barang->stok) {
+    return back()->withInput()
+        ->with('error', "Stok barang \"{$barang->nama_barang}\" tidak mencukupi. Stok tersisa: {$barang->stok}.");
+}</code></pre>
+<p>
+    Setelah transaksi tersimpan, stok barang dikurangi otomatis:
+</p>
+<pre><code>$barang->decrement('stok', $item['jumlah']);</code></pre>
+<p>
+    Jika transaksi dihapus, stok dikembalikan:
+</p>
+<pre><code>$barang->increment('stok', $detail->jumlah);</code></pre>
+
+<h3>4.3 Rekap Penjualan Per Hari</h3>
+<p>
+    Menggunakan query grouping dengan aggregate function:
+</p>
+<pre><code>$rekap = Transaksi::select(
+        'tanggal',
+        DB::raw('COUNT(*) as jumlah_transaksi'),
+        DB::raw('SUM(total) as total_penjualan')
+    )
+    ->groupBy('tanggal')
+    ->orderBy('tanggal', 'desc')
+    ->get();</code></pre>
+</div>
+
+<!-- 5. POTONGAN KODE PENTING -->
+<div class="pagebreak">
+<h2>5. Potongan Kode Penting</h2>
+
+<h3>5.1 Route (routes/web.php)</h3>
+<pre><code>Route::resource('pelanggan', PelangganController::class);
+Route::resource('barang', BarangController::class);
+Route::resource('transaksi', TransaksiController::class);
+Route::get('transaksi/rekap/laporan', [TransaksiController::class, 'rekap'])-&gt;name('transaksi.rekap');</code></pre>
+
+<h3>5.2 Transaksi Controller — Metode store()</h3>
+<pre><code>public function store(Request $request)
+{
+    $validated = $request->validate([
+        'pelanggan_id'      => 'required|exists:pelanggan,id',
+        'tanggal'           => 'required|date',
+        'item_barang_id'    => 'required|array|min:1',
+        'item_barang_id.*'  => 'required|exists:barang,id',
+        'item_jumlah.*'     => 'required|integer|min:1',
+    ]);
+
+    $totalTransaksi = 0;
+    $detailItems    = [];
+
+    for ($i = 0; $i < count($validated['item_barang_id']); $i++) {
+        $barang = Barang::find($validated['item_barang_id'][$i]);
+        $jumlah = $validated['item_jumlah'][$i];
+
+        // Validasi stok
+        if ($jumlah > $barang->stok) {
+            return back()->withInput()
+                ->with('error', "Stok barang \"{$barang->nama_barang}\" tidak mencukupi.");
+        }
+
+        $subtotal = $barang->harga_satuan * $jumlah;
+        $detailItems[] = [
+            'barang_id' => $barang->id,
+            'jumlah'    => $jumlah,
+            'subtotal'  => $subtotal,
+        ];
+        $totalTransaksi += $subtotal;
+    }
+
+    DB::transaction(function () use ($validated, $detailItems, $totalTransaksi) {
+        $transaksi = Transaksi::create([
+            'kode_transaksi' => 'TRX' . date('YmdHis'),
+            'pelanggan_id'   => $validated['pelanggan_id'],
+            'tanggal'        => $validated['tanggal'],
+            'total'          => $totalTransaksi,
+        ]);
+
+        foreach ($detailItems as $item) {
+            DetailTransaksi::create([
+                'transaksi_id' => $transaksi->id,
+                'barang_id'    => $item['barang_id'],
+                'jumlah'       => $item['jumlah'],
+                'subtotal'     => $item['subtotal'],
+            ]);
+            Barang::find($item['barang_id'])-&gt;decrement('stok', $item['jumlah']);
+        }
+    });
+
+    return redirect()->route('transaksi.index')
+                     ->with('success', 'Transaksi berhasil disimpan.');
+}</code></pre>
+
+<h3>5.3 Model Transaksi (app/Models/Transaksi.php)</h3>
+<pre><code>class Transaksi extends Model
+{
+    protected $table = 'transaksi';
+    protected $fillable = ['kode_transaksi', 'pelanggan_id', 'tanggal', 'total'];
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class);
+    }
+
+    public function detailTransaksi()
+    {
+        return $this->hasMany(DetailTransaksi::class);
+    }
+}</code></pre>
+</div>
+
+<!-- 6. SCREENSHOT -->
+<div class="pagebreak">
+<h2>6. Screenshot Tampilan Sistem</h2>
+<p><em>Catatan: Screenshot dapat ditambahkan setelah aplikasi dijalankan di browser.</em></p>
+<p>Halaman-halaman yang perlu di-screenshot:</p>
+<ol>
+    <li><strong>Halaman Utama (Home)</strong> — tampilan dashboard dengan 4 menu</li>
+    <li><strong>Daftar Pelanggan</strong> — tabel data pelanggan</li>
+    <li><strong>Form Tambah Pelanggan</strong> — form input</li>
+    <li><strong>Daftar Barang</strong> — tabel data barang dengan harga dan stok</li>
+    <li><strong>Form Tambah Barang</strong> — form input</li>
+    <li><strong>Daftar Transaksi</strong> — tabel transaksi</li>
+    <li><strong>Form Tambah Transaksi</strong> — form dengan dynamic item</li>
+    <li><strong>Detail Transaksi</strong> — detail transaksi beserta item</li>
+    <li><strong>Validasi Stok</strong> — pesan error saat stok tidak cukup</li>
+    <li><strong>Rekap Harian</strong> — laporan penjualan per tanggal</li>
+</ol>
+</div>
+
+<!-- 7. LINK -->
+<div class="pagebreak">
+<h2>7. Link Repository & Video</h2>
+
+<table>
+    <tr><th>Item</th><th>Link</th></tr>
+    <tr><td>Repository GitHub (Private)</td><td>https://github.com/[username]/crud-penjualan-raihan-h1h024056</td></tr>
+    <tr><td>Video Penjelasan YouTube</td><td>[URL video YouTube]</td></tr>
+</table>
+
+<p><em>Catatan: Isi link di atas setelah repository di-push ke GitHub dan video di-upload ke YouTube.</em></p>
+</div>
+
+<!-- 8. KESIMPULAN -->
+<div class="pagebreak">
+<h2>8. Kesimpulan</h2>
+<p>
+    Sistem Manajemen Transaksi Penjualan Sederhana berhasil dibangun menggunakan Laravel 13 dengan Blade Template murni.
+    Seluruh ketentuan CPMK-01 telah dipenuhi:
+</p>
+<ol>
+    <li>CRUD dasar (Create, Read, Update, Delete) pada pelanggan, barang, dan transaksi</li>
+    <li>Pola MVC diterapkan: Model (Eloquent), Controller (Resource), Route (Resource), View (Blade)</li>
+    <li>Minimal 4 tabel yang saling berelasi: pelanggan, barang, transaksi, detail_transaksi</li>
+    <li>Tantangan khusus 1: Perhitungan otomatis subtotal (harga × jumlah) dan total transaksi</li>
+    <li>Tantangan khusus 2: Validasi stok barang tidak boleh minus</li>
+    <li>Tantangan khusus 3: Halaman rekap/laporan penjualan per hari dengan grouping</li>
+    <li>Tidak menggunakan framework frontend tambahan (Livewire, Vue, React, Inertia)</li>
+    <li>Database menggunakan Migration Laravel</li>
+</ol>
+</div>
+
+</body>
+</html>
